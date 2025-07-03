@@ -78,7 +78,7 @@ if endpoint == "Chat":
 
     #  Affichage de l’historique
     for msg in st.session_state.chat_history:
-        role_label = "user" if msg["role"] == "user" else "assistant"
+        role_label = "user" if  msg["role"]== "user" else "assistant"
         with st.chat_message(role_label):
             st.markdown(msg.get("content", ""))
             image = msg.get("image")
