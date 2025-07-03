@@ -50,7 +50,9 @@ def display_response_as_cards(data, user_id=None):
                     }
                     try:
                         r = requests.post(f"{BASE_URL}/save_program", json=payload)
-                        if r.status_code == 200:
+                        if r.status_code == 504:
+                            st.warning(" Le coach met trop de temps à répondre. Veuillez réessayer plus tard.")
+                        elif r.status_code == 200:
                             st.success(" Programme enregistré avec succès")
                         else:
                             st.error(f" Erreur API: {r.text}")
@@ -74,9 +76,9 @@ if endpoint == "Chat":
         st.session_state.chat_history = []
         st.session_state.prev_ids = (user_id, chat_id)
 
-    # 🔁 Affichage de l’historique
+    #  Affichage de l’historique
     for msg in st.session_state.chat_history:
-        role_label = "🧑‍💬 You" if msg["role"] == "user" else "🤖 Coach"
+        role_label = "user" if msg["role"] == "user" else "assistant"
         with st.chat_message(role_label):
             st.markdown(msg.get("content", ""))
             image = msg.get("image")
@@ -100,7 +102,9 @@ if endpoint == "Chat":
                     }
                     try:
                         r = requests.post(f"{BASE_URL}/save_program", json=payload)
-                        if r.status_code == 200:
+                        if r.status_code == 504:
+                            st.warning(" Le coach met trop de temps à répondre. Veuillez réessayer plus tard.")
+                        elif r.status_code == 200:
                             st.success(" Programme enregistré avec succès")
                         else:
                             st.error(f" Erreur API: {r.text}")
@@ -124,8 +128,10 @@ if endpoint == "Chat":
                     "chat_id": chat_id,
                     "message": user_message
                 })
-
-                if response.status_code == 200:
+                
+                if response.status_code == 504:
+                    st.warning(" Le coach met trop de temps à répondre. Veuillez réessayer plus tard.")
+                elif response.status_code == 200:
                     data = response.json()
                     if not isinstance(data, list):
                         data = [data]
@@ -169,10 +175,10 @@ elif endpoint == "Training":
         st.session_state.training_history = []
         st.session_state.prev_training_ids = (user_id, chat_id)
 
-    # 🔁 Affichage de l'historique et bouton Enregistrer
+    #  Affichage de l'historique et bouton Enregistrer
     for msg in st.session_state.training_history:
         role = msg.get("role", "assistant")
-        label = "🧑‍💬 Vous" if role == "user" else "🧠 Coach"
+        label = "user" if role == "user" else "assistant"
 
         with st.chat_message(label):
             st.markdown(msg.get("content", ""))
@@ -197,7 +203,9 @@ elif endpoint == "Training":
                     }
                     try:
                         r = requests.post(f"{BASE_URL}/save_program", json=payload)
-                        if r.status_code == 200:
+                        if r.status_code == 504:
+                            st.warning(" Le coach met trop de temps à répondre. Veuillez réessayer plus tard.")
+                        elif r.status_code == 200:
                             st.success(" Programme enregistré avec succès.")
                         else:
                             st.error(f" Erreur API : {r.text}")
@@ -213,7 +221,9 @@ elif endpoint == "Training":
                     f"{BASE_URL}/training",
                     json={"user_id": user_id, "chat_id": chat_id, "message": user_message}
                 )
-                if res.status_code == 200:
+                if res.status_code == 504:
+                    st.warning(" Le coach met trop de temps à répondre. Veuillez réessayer plus tard.")
+                elif res.status_code == 200:
                     data = res.json()
                     for item in data:
                         st.session_state.training_history.append({
@@ -258,7 +268,9 @@ elif endpoint == "Save Program":
             "start_date": start_date
         }
         response = requests.post(f"{BASE_URL}/save_program", json=payload)
-        if response.status_code == 200:
+        if response.status_code == 504:
+            st.warning(" Le coach met trop de temps à répondre. Veuillez réessayer plus tard.")
+        elif response.status_code == 200:
             st.success(" Program saved successfully!")
         else:
             st.error(f" Error saving program: {response.text}")
@@ -273,7 +285,9 @@ elif endpoint == "Get Programs":
     if st.button("Get Programs"):
         try:
             response = requests.get(f"{BASE_URL}/get_all_programs", params={"user_id": user_id})
-            if response.status_code == 200:
+            if response.status_code == 504:
+                st.warning(" Le coach met trop de temps à répondre. Veuillez réessayer plus tard.")
+            elif response.status_code == 200:
                 programs = response.json()
                 for program in programs:
                     with st.expander(f"{program['title']} ({program['type']})"):
@@ -307,7 +321,9 @@ elif endpoint == "Daily Program":
                     "selected_date": selected_date
                 })
                 
-                if response.status_code == 200:
+                if response.status_code == 504:
+                    st.warning(" Le coach met trop de temps à répondre. Veuillez réessayer plus tard.")
+                elif response.status_code == 200:
                     data = response.json()
                     st.success(f" Program for day {data['day_index']}")
                     
@@ -347,7 +363,9 @@ elif endpoint == "Chat History":
         try:
             #  Récupère toutes les conversations de l'utilisateur
             response = requests.get(f"{BASE_URL}/get_all_chats", params={"user_id": user_id})
-            if response.status_code == 200:
+            if response.status_code == 504:
+                st.warning(" Le coach met trop de temps à répondre. Veuillez réessayer plus tard.")
+            elif response.status_code == 200:
                 chats = response.json()
                 if not chats:
                     st.info("Aucune conversation trouvée.")
@@ -364,7 +382,9 @@ elif endpoint == "Chat History":
                                 "chat_id": selected_chat_id
                             })
 
-                            if msg_response.status_code == 200:
+                            if msg_response.status_code == 504:
+                                st.warning(" Le coach met trop de temps à répondre. Veuillez réessayer plus tard.")
+                            elif msg_response.status_code == 200:
                                 messages = msg_response.json()
 
                                 for msg in messages:
